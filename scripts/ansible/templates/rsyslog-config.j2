@@ -1,0 +1,4 @@
+#https://rsyslog.readthedocs.io/en/latest/configuration/modules/imuxsock.html
+input(type="imuxsock"
+      Socket="{{ logging_socket_filename }}"
+      CreatePath="on")

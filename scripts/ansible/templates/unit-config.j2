@@ -1,0 +1,25 @@
+[Unit]
+Description=Stat-to-scale: host metrics collector
+# Documentation=TODO url to repo
+
+[Service]
+Type=simple
+ExecStart={{ binary_home_path }}/{{ binary_file_name }}
+Environment=STS_LOGGING_LEVEL=info
+
+Environment=STS_LOGGING_TO_SYSLOG_ENABLED=true
+Environment=STS_SYSLOG_PROTOCOL=unixgram
+Environment=STS_SYSLOG_ADDRESS={{ logging_socket_filename }}
+
+Environment=STS_LOGGING_TO_FILE_ENABLED=true
+Environment=STS_LOGGING_TO_FILE_FILENAME=/var/log/stats-to-scale/app.log
+Environment=STS_LOGGING_TO_FILE_FILE_SIZE_MB=100
+Environment=STS_LOGGING_TO_FILE_MAX_BACKUPS_FILES_NUMBER=3
+
+Environment=STS_DATABASE_CONNECTION_STRING='{{ database_connection_string }}'
+
+Restart=always
+
+[Install]
+WantedBy=default.target
+# TODO add dependency on syslog

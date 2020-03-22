@@ -1,0 +1,45 @@
+---
+- hosts: workers
+  become: yes
+  vars:
+    binary_home_path: /etc/stats-to-scale
+    binary_file_name: stats-to-scale
+    logging_socket_filename: /var/run/stats-to-scale/log.sock
+
+  tasks:
+    - name: Update rsyslog config
+      template:
+        src: rsyslog-config.j2
+        dest: /etc/rsyslog.d/stats-to-scale-socket.conf
+
+    # TODO Update only if config has been changed
+    - name: Update rsyslog
+      systemd:
+        name: syslog
+        state: restarted
+        daemon_reload: yes
+
+    - name: Create directory for binary
+      file:
+        path: "{{ binary_home_path }}"
+        state: directory
+
+    - name: Update binary
+      copy:
+        src: "{{ binary_file_source }}"
+        force: yes
+        mode: u=rwx,g=rx,o=r
+        dest: "{{ binary_home_path }}/{{ binary_file_name }}"
+
+    - name: Update systemd unit config
+      template:
+        src: unit-config.j2
+        dest: /etc/systemd/system/stats-to-scale.service
+        mode: '0664'
+
+    - name: Reload service
+      systemd:
+        name: stats-to-scale
+        state: restarted
+        daemon_reload: yes
+        enabled: yes
